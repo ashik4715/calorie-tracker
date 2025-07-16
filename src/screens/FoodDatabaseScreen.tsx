@@ -14,6 +14,7 @@ export const FoodDatabaseScreen = ({ onBack }: FoodDatabaseScreenProps) => {
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItemType | null>(
     null
   );
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const onSelectFood = useCallback((foodItem: FoodItemType) => {
     // Add logic to select food and add to meal
@@ -39,6 +40,17 @@ export const FoodDatabaseScreen = ({ onBack }: FoodDatabaseScreenProps) => {
     setSelectedFoodItem(null);
   };
 
+  const handleAddNewFood = () => {
+    setSelectedFoodItem(null); // Clear selection for new food
+    setShowAddModal(true);
+  };
+
+  const handleSaveNewFood = (newItem: FoodItemType) => {
+    // TODO: Add new food item to database
+    console.log("Adding new food item:", newItem);
+    setShowAddModal(false);
+  };
+
   return (
     <view className="food-database-screen">
       {onBack && (
@@ -46,7 +58,12 @@ export const FoodDatabaseScreen = ({ onBack }: FoodDatabaseScreenProps) => {
           ← Back
         </text>
       )}
-      <text className="screen-title">Food Database</text>
+      <view className="food-database-header">
+        <text className="screen-title">Food Database</text>
+        <text className="add-food-button" bindtap={handleAddNewFood}>
+          + Add New Food
+        </text>
+      </view>
       <scroll-view className="food-list" scroll-y={true}>
         {foodItems.map((food) => (
           <view key={food.id} className="food-database-item">
@@ -78,6 +95,14 @@ export const FoodDatabaseScreen = ({ onBack }: FoodDatabaseScreenProps) => {
           setShowEditModal(false);
           setSelectedFoodItem(null);
         }}
+      />
+
+      <EditFoodItemModal
+        isVisible={showAddModal}
+        foodItem={null}
+        onSave={handleSaveNewFood}
+        onDelete={() => {}} // No delete for new items
+        onClose={() => setShowAddModal(false)}
       />
     </view>
   );

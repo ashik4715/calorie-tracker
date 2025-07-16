@@ -36,6 +36,46 @@ export const DashboardScreen = ({
   );
   const [userProfile, setUserProfile] = useState(user);
 
+  // Date navigation functions
+  const goToPreviousDay = () => {
+    const prevDate = new Date(currentDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    setCurrentDate(prevDate.toISOString().split("T")[0]);
+  };
+
+  const goToNextDay = () => {
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    setCurrentDate(nextDate.toISOString().split("T")[0]);
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date().toISOString().split("T")[0]);
+  };
+
+  const formatDisplayDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (dateStr === today.toISOString().split("T")[0]) {
+      return "Today";
+    } else if (dateStr === yesterday.toISOString().split("T")[0]) {
+      return "Yesterday";
+    } else if (dateStr === tomorrow.toISOString().split("T")[0]) {
+      return "Tomorrow";
+    } else {
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
+    }
+  };
+
   const fetchUserProfile = useCallback(async () => {
     try {
       const data = await apiService.getProfile(token);
@@ -78,6 +118,18 @@ export const DashboardScreen = ({
 
     loadData();
   }, [fetchDailySummary, fetchFoodItems, fetchUserProfile]);
+
+  // Refetch daily summary when date changes
+  useEffect(() => {
+    fetchDailySummary();
+  }, [currentDate, fetchDailySummary]);
+
+  // Update userProfile when user prop changes
+  useEffect(() => {
+    if (user) {
+      setUserProfile(user);
+    }
+  }, [user]);
 
   const addMealEntry = async (foodItem: FoodItem, quantity: number) => {
     try {
@@ -162,16 +214,43 @@ export const DashboardScreen = ({
         <view className="header-actions">
           {onNavigateToProfile && (
             <text className="profile-button" bindtap={onNavigateToProfile}>
-              Profile
+              Report
             </text>
           )}
-          <text className="logout-button" bindtap={onLogout}>
+          {/* <text className="logout-button" bindtap={onLogout}>
             Logout
-          </text>
+          </text> */}
         </view>
       </view>
 
       <scroll-view className="dashboard-content" scroll-y={true}>
+        {/* Date Navigation */}
+        <view className="date-navigation">
+          <text className="date-nav-button" bindtap={goToPreviousDay}>
+            ‹
+          </text>
+          <view className="date-display">
+            <text className="current-date">
+              {formatDisplayDate(currentDate)}
+            </text>
+            <text className="date-subtitle">
+              {new Date(currentDate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </text>
+            {currentDate !== new Date().toISOString().split("T")[0] && (
+              <text className="today-button" bindtap={goToToday}>
+                Go to Today
+              </text>
+            )}
+          </view>
+          <text className="date-nav-button" bindtap={goToNextDay}>
+            ›
+          </text>
+        </view>
+
         {/* Calorie Progress Circle */}
         <view className="calorie-progress-section">
           <view className="progress-circle">

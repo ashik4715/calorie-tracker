@@ -1,4 +1,4 @@
-import { useCallback, useState } from "@lynx-js/react";
+import { useCallback, useEffect, useState } from "@lynx-js/react";
 import { VirtualKeyboard } from "../components/VirtualKeyboard.js";
 import { apiService } from "../services/api.js";
 import type { User } from "../types/index.js";
@@ -35,6 +35,16 @@ export const ProfileScreen = ({
   const [dailyFatGoal, setDailyFatGoal] = useState(
     (user.dailyFatGoal || 65).toString()
   );
+
+  // Update state when user prop changes
+  useEffect(() => {
+    setName(user.name || "");
+    setEmail(user.email || "");
+    setDailyCalorieGoal((user.dailyCalorieGoal || 2000).toString());
+    setDailyProteinGoal((user.dailyProteinGoal || 150).toString());
+    setDailyCarbsGoal((user.dailyCarbsGoal || 250).toString());
+    setDailyFatGoal((user.dailyFatGoal || 65).toString());
+  }, [user]);
 
   // Modal states
   const [showNameModal, setShowNameModal] = useState(false);

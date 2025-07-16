@@ -1,6 +1,6 @@
 import { useState } from "@lynx-js/react";
-import { VirtualKeyboard } from "./VirtualKeyboard.js";
 import type { FoodItem } from "../types/index.js";
+import { VirtualKeyboard } from "./VirtualKeyboard.js";
 
 interface EditFoodItemModalProps {
   isVisible: boolean;
@@ -18,7 +18,9 @@ export const EditFoodItemModal = ({
   onClose,
 }: EditFoodItemModalProps) => {
   const [name, setName] = useState(foodItem?.name || "");
-  const [calories, setCalories] = useState(foodItem?.calories?.toString() || "");
+  const [calories, setCalories] = useState(
+    foodItem?.calories?.toString() || ""
+  );
   const [protein, setProtein] = useState(foodItem?.protein?.toString() || "");
   const [carbs, setCarbs] = useState(foodItem?.carbs?.toString() || "");
   const [fat, setFat] = useState(foodItem?.fat?.toString() || "");
@@ -31,38 +33,70 @@ export const EditFoodItemModal = ({
   const [showFatModal, setShowFatModal] = useState(false);
   const [showServingModal, setShowServingModal] = useState(false);
 
-  if (!isVisible || !foodItem) return null;
+  // Initialize form values based on foodItem
+  if (isVisible && foodItem && name === "" && calories === "") {
+    setName(foodItem.name || "");
+    setCalories(foodItem.calories?.toString() || "");
+    setProtein(foodItem.protein?.toString() || "");
+    setCarbs(foodItem.carbs?.toString() || "");
+    setFat(foodItem.fat?.toString() || "");
+    setServing(foodItem.serving || "");
+  } else if (isVisible && !foodItem && name !== "") {
+    // Reset for new food item
+    setName("");
+    setCalories("");
+    setProtein("");
+    setCarbs("");
+    setFat("");
+    setServing("");
+  } else if (isVisible && !foodItem && name !== "") {
+    // Reset for new food item
+    setName("");
+    setCalories("");
+    setProtein("");
+    setCarbs("");
+    setFat("");
+    setServing("");
+  }
+
+  if (!isVisible) return null;
 
   const handleSave = () => {
     const updatedItem: FoodItem = {
-      ...foodItem,
+      id: foodItem?.id || `food_${Date.now()}`, // Generate ID for new items
       name,
-      calories: parseFloat(calories),
-      protein: parseFloat(protein),
-      carbs: parseFloat(carbs),
-      fat: parseFloat(fat),
+      calories: parseFloat(calories) || 0,
+      protein: parseFloat(protein) || 0,
+      carbs: parseFloat(carbs) || 0,
+      fat: parseFloat(fat) || 0,
       serving,
     };
     onSave(updatedItem);
   };
 
   const handleDelete = () => {
-    onDelete(foodItem.id);
+    if (foodItem?.id) {
+      onDelete(foodItem.id);
+    }
   };
 
   return (
     <view className="edit-food-item-modal">
       <view className="edit-food-item-content">
         <view className="edit-food-item-header">
-          <text className="edit-food-item-title">Edit Food Item</text>
-          <text className="modal-close" bindtap={onClose}>×</text>
+          <text className="edit-food-item-title">
+            {foodItem ? "Edit Food Item" : "Add New Food Item"}
+          </text>
+          <text className="modal-close" bindtap={onClose}>
+            ×
+          </text>
         </view>
 
-        <view className="edit-food-item-body">
+        <scroll-view className="edit-food-item-body" scroll-y={true}>
           <view className="edit-field">
             <text className="field-label">Name:</text>
-            <text 
-              className="field-input" 
+            <text
+              className="field-input"
               bindtap={() => setShowNameModal(true)}
             >
               {name || "Tap to edit"}
@@ -71,8 +105,8 @@ export const EditFoodItemModal = ({
 
           <view className="edit-field">
             <text className="field-label">Calories:</text>
-            <text 
-              className="field-input" 
+            <text
+              className="field-input"
               bindtap={() => setShowCaloriesModal(true)}
             >
               {calories}
@@ -81,8 +115,8 @@ export const EditFoodItemModal = ({
 
           <view className="edit-field">
             <text className="field-label">Protein (g):</text>
-            <text 
-              className="field-input" 
+            <text
+              className="field-input"
               bindtap={() => setShowProteinModal(true)}
             >
               {protein}
@@ -91,8 +125,8 @@ export const EditFoodItemModal = ({
 
           <view className="edit-field">
             <text className="field-label">Carbs (g):</text>
-            <text 
-              className="field-input" 
+            <text
+              className="field-input"
               bindtap={() => setShowCarbsModal(true)}
             >
               {carbs}
@@ -101,31 +135,30 @@ export const EditFoodItemModal = ({
 
           <view className="edit-field">
             <text className="field-label">Fat (g):</text>
-            <text 
-              className="field-input" 
-              bindtap={() => setShowFatModal(true)}
-            >
+            <text className="field-input" bindtap={() => setShowFatModal(true)}>
               {fat}
             </text>
           </view>
 
           <view className="edit-field">
             <text className="field-label">Serving:</text>
-            <text 
-              className="field-input" 
+            <text
+              className="field-input"
               bindtap={() => setShowServingModal(true)}
             >
               {serving || "Tap to edit"}
             </text>
           </view>
-        </view>
+        </scroll-view>
 
         <view className="edit-food-item-actions">
-          <text className="delete-button" bindtap={handleDelete}>
-            Delete
-          </text>
+          {foodItem && (
+            <text className="delete-button" bindtap={handleDelete}>
+              Delete
+            </text>
+          )}
           <text className="save-button" bindtap={handleSave}>
-            Save Changes
+            {foodItem ? "Save Changes" : "Add Food"}
           </text>
         </view>
       </view>

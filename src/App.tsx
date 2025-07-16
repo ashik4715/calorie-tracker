@@ -4,12 +4,19 @@ import { DashboardScreen } from "./screens/DashboardScreen.js";
 import { FoodDatabaseScreen } from "./screens/FoodDatabaseScreen.js";
 import { LoginScreen } from "./screens/LoginScreen.js";
 import { ProfileScreen } from "./screens/ProfileScreen.js";
+import { ReportScreen } from "./screens/ReportScreen.js";
 import { SignupScreen } from "./screens/SignupScreen.js";
 import { useStore } from "./store/index.js";
 
 import "./App.css";
 
-type Screen = "dashboard" | "food-database" | "profile" | "login" | "signup";
+type Screen =
+  | "dashboard"
+  | "food-database"
+  | "profile"
+  | "report"
+  | "login"
+  | "signup";
 
 export function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
@@ -97,13 +104,23 @@ export function App() {
             user={auth.user}
             token={auth.token || ""}
             onLogout={logout}
-            onNavigateToProfile={() => setCurrentScreen("profile")}
+            onNavigateToProfile={() => setCurrentScreen("report")}
           />
         );
       case "food-database":
         return (
           <FoodDatabaseScreen onBack={() => setCurrentScreen("dashboard")} />
         );
+      case "report":
+        return auth.user ? (
+          <ReportScreen
+            user={auth.user}
+            token={auth.token || ""}
+            onLogout={logout}
+            onNavigateToProfile={() => setCurrentScreen("profile")}
+            onNavigateToDashboard={() => setCurrentScreen("dashboard")}
+          />
+        ) : null;
       case "profile":
         return auth.user ? (
           <ProfileScreen
